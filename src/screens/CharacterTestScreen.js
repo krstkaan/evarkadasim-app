@@ -49,7 +49,7 @@ export default function CharacterTestScreen() {
             try {
                 await api.post('/character-test-submit', { answers: payload });
                 Alert.alert('Test tamamlandı', 'Başarıyla kaydedildi.');
-                navigation.replace('Home');
+                navigation.replace('HomePage');
             } catch (error) {
                 console.error('Test gönderilirken hata:', error);
                 Alert.alert('Hata', 'Test gönderilemedi. Lütfen tekrar deneyin.');

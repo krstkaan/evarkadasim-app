@@ -8,10 +8,14 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../lib/api';
 import { parseLaravelErrors } from '../lib/utils';
+import logo from '../../assets/images/roomiefiesLogo.png'; // ✅ LOGO
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/slices/userSlice'; // Redux için userSlice importu
 
 export default function RegisterScreen({ navigation }) {
     const [adsoyad, setadsoyad] = useState('');
@@ -19,7 +23,7 @@ export default function RegisterScreen({ navigation }) {
     const [telefon, setTelefon] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    const dispatch = useDispatch(); // Redux için dispatch fonksiyonu
 
     const handleRegister = async () => {
         try {
@@ -35,8 +39,8 @@ export default function RegisterScreen({ navigation }) {
             setErrorMessage('');
 
             const me = await api.get('/me');
-            const user = me.data;
-
+            dispatch(setUser(me.data)); // Kullanıcı bilgilerini Redux store'a kaydet
+            
             if (!user.character_test_done) {
                 navigation.replace('CharacterTest');
             } else {
@@ -54,7 +58,21 @@ export default function RegisterScreen({ navigation }) {
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
                 <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
+                    
+                    {/* ✅ LOGO */}
+                    <Image
+                        source={logo}
+                        style={{
+                            width: 180,
+                            height: 180,
+                            resizeMode: 'contain',
+                            alignSelf: 'center',
+                            marginBottom: 20,
+                        }}
+                    />
+
                     <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 20 }}>Kayıt Ol</Text>
+
                     {errorMessage ? (
                         <View style={{ backgroundColor: '#fdecea', padding: 10, borderRadius: 8, marginBottom: 15 }}>
                             <Text style={{ color: '#b71c1c', fontSize: 14 }}>{errorMessage}</Text>

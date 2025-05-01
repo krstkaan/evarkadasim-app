@@ -8,17 +8,21 @@ import {
     ScrollView,
     KeyboardAvoidingView,
     Platform,
+    Image,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../lib/api'; // ✅ Artık buradan alıyoruz
+import api from '../lib/api';
 import { parseLaravelErrors } from '../lib/utils';
+import logo from '../../assets/images/roomiefiesLogo.png'; // ← LOGO YOLU (ayarla)
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/slices/userSlice';
 
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
-
+    const dispatch = useDispatch();
 
     const handleLogin = async () => {
         try {
@@ -31,9 +35,8 @@ export default function LoginScreen({ navigation }) {
             await AsyncStorage.setItem('authToken', token);
             setErrorMessage('');
 
-            // ✅ Kullanıcı bilgilerini çek ve yönlendir
             const me = await api.get('/me');
-            const user = me.data;
+            dispatch(setUser(me.data));
 
             if (!user.character_test_done) {
                 navigation.replace('CharacterTest');
@@ -52,15 +55,42 @@ export default function LoginScreen({ navigation }) {
         >
             <ScrollView contentContainerStyle={{ flexGrow: 1 }} keyboardShouldPersistTaps="handled">
                 <View style={{ flex: 1, justifyContent: 'center', padding: 20 }}>
+                    {/* ✅ LOGO */}
+                    <Image
+                        source={logo}
+                        style={{
+                            width: 180,
+                            height: 180,
+                            resizeMode: 'contain',
+                            alignSelf: 'center',
+                            marginBottom: 20,
+                        }}
+                    />
+
                     <Text style={{ fontSize: 28, fontWeight: 'bold', marginBottom: 20 }}>Giriş Yap</Text>
+
                     {errorMessage ? (
                         <View style={{ backgroundColor: '#fdecea', padding: 10, borderRadius: 8, marginBottom: 15 }}>
                             <Text style={{ color: '#b71c1c', fontSize: 14 }}>{errorMessage}</Text>
                         </View>
                     ) : null}
 
-                    <TextInput placeholder="E-posta" value={email} onChangeText={setEmail} keyboardType="email-address" autoCapitalize="none" style={inputStyle} />
-                    <TextInput placeholder="Şifre" value={password} onChangeText={setPassword} secureTextEntry style={inputStyle} />
+                    <TextInput
+                        placeholder="E-posta"
+                        value={email}
+                        onChangeText={setEmail}
+                        keyboardType="email-address"
+                        autoCapitalize="none"
+                        style={inputStyle}
+                    />
+
+                    <TextInput
+                        placeholder="Şifre"
+                        value={password}
+                        onChangeText={setPassword}
+                        secureTextEntry
+                        style={inputStyle}
+                    />
 
                     <TouchableOpacity onPress={handleLogin} style={buttonStyle}>
                         <Text style={buttonTextStyle}>Giriş Yap</Text>
