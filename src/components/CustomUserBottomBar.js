@@ -34,9 +34,9 @@ const CustomUserBottomBar = () => {
             />
             <BarItem
                 itemText="İlan Ver"
-                itemLink="CreateAdPage"
+                itemLink="CreateAdvertisementScreen"
                 itemIcon="plus-circle"
-                isActive={currentRouteName === 'CreateAdPage'}
+                isActive={currentRouteName === 'CreateAdvertisementScreen'}
             />
             <BarItem
                 itemText="Hesabım"
