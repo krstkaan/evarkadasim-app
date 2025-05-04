@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import api from '../lib/api';
 import { useNavigation } from '@react-navigation/native';
+import Colors from '../constants/colors';
 
 export default function CharacterTestScreen() {
     const [questions, setQuestions] = useState([]);
@@ -40,7 +41,6 @@ export default function CharacterTestScreen() {
         if (currentIndex < questions.length - 1) {
             setCurrentIndex(currentIndex + 1);
         } else {
-            // Test tamamlandı → cevapları backend’e gönder
             const payload = Object.keys(answers).map((index) => ({
                 question_id: questions[index].id,
                 value: answers[index],
@@ -66,7 +66,7 @@ export default function CharacterTestScreen() {
     if (loading) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#171790" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
@@ -97,14 +97,21 @@ export default function CharacterTestScreen() {
                         ]}
                         onPress={() => handleAnswer(option.value)}
                     >
-                        <Text style={styles.optionText}>{option.text}</Text>
+                        <Text
+                            style={[
+                                styles.optionText,
+                                isSelected && styles.optionTextSelected,
+                            ]}
+                        >
+                            {option.text}
+                        </Text>
                     </TouchableOpacity>
                 );
             })}
 
             <View style={styles.navButtons}>
                 {currentIndex > 0 && (
-                    <TouchableOpacity onPress={goBack} style={styles.navButton}>
+                    <TouchableOpacity onPress={goBack} style={[styles.navButton, { backgroundColor: Colors.secondary }]}>
                         <Text style={styles.navButtonText}>← Geri</Text>
                     </TouchableOpacity>
                 )}
@@ -114,7 +121,7 @@ export default function CharacterTestScreen() {
                     style={[
                         styles.navButton,
                         {
-                            backgroundColor: selectedValue === undefined ? '#ccc' : '#36C055',
+                            backgroundColor: selectedValue === undefined ? '#ccc' : Colors.success,
                         },
                     ]}
                 >
@@ -132,34 +139,41 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+        backgroundColor: Colors.background,
     },
     container: {
         flex: 1,
         padding: 24,
         justifyContent: 'center',
+        backgroundColor: Colors.background,
     },
     question: {
         fontSize: 22,
         fontWeight: 'bold',
         marginBottom: 20,
         textAlign: 'center',
-        color: '#171790',
+        color: Colors.primary,
     },
     optionButton: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: Colors.borderLight,
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: Colors.cardBackground,
     },
     selectedOption: {
-        backgroundColor: '#dceaf5',
-        borderColor: '#2196f3',
+        backgroundColor: Colors.accent,
+        borderColor: Colors.primary,
     },
     optionText: {
         fontSize: 16,
         textAlign: 'center',
+        color: Colors.textDark,
+    },
+    optionTextSelected: {
+        fontWeight: 'bold',
+        color: Colors.primary,
     },
     navButtons: {
         flexDirection: 'row',
@@ -173,12 +187,13 @@ const styles = StyleSheet.create({
         marginHorizontal: 5,
     },
     navButtonText: {
-        color: 'white',
+        color: Colors.white,
         textAlign: 'center',
         fontWeight: 'bold',
     },
     error: {
-        color: '#b71c1c',
+        color: Colors.danger,
         fontSize: 16,
+        textAlign: 'center',
     },
 });

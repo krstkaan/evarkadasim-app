@@ -1,11 +1,19 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Button, ActivityIndicator } from 'react-native';
+import {
+    View,
+    Text,
+    StyleSheet,
+    ActivityIndicator,
+    TouchableOpacity,
+    Image,
+} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { setUser, clearUser } from '../store/slices/userSlice';
 import api from '../lib/api';
 import CustomUserBottomBar from '../components/CustomUserBottomBar';
+import Colors from '../constants/colors'; // ✅ Renk paleti
 
 export default function HomeScreen() {
     const user = useSelector(state => state.user.user);
@@ -16,7 +24,7 @@ export default function HomeScreen() {
         const fetchUser = async () => {
             try {
                 const response = await api.get('/me');
-                dispatch(setUser(response.data)); // ✅ Redux'a kullanıcıyı at
+                dispatch(setUser(response.data));
             } catch (error) {
                 console.log('Kullanıcı bilgisi alınamadı:', error);
                 await AsyncStorage.removeItem('authToken');
@@ -28,58 +36,88 @@ export default function HomeScreen() {
         fetchUser();
     }, []);
 
-    const handleLogout = async () => {
-        try {
-            await api.post('/logout');
-        } catch (e) {
-            // loglanabilir
-        } finally {
-            await AsyncStorage.removeItem('authToken');
-            dispatch(clearUser()); // ✅ bu tetiklenince RootNavigation otomatik AuthStack'e döner
-        }
-    };
-
     if (!user) {
         return (
             <View style={styles.center}>
-                <ActivityIndicator size="large" color="#171790" />
+                <ActivityIndicator size="large" color={Colors.primary} />
             </View>
         );
     }
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.title}>Hoş geldin, {user.name}</Text>
-            <Text style={styles.subtitle}>{user.email}</Text>
+        <View style={styles.pageBackground}>
+            {/* Üst bar */}
+            <View style={styles.headerTop}>
+                <View>
+                    <Text style={styles.logoText}>Roomiefies</Text>
+                    <Text style={styles.sloganText}>Karakterine uygun ev arkadaşını bul</Text>
+                </View>
+                <TouchableOpacity onPress={() => navigation.navigate('AccountScreen')}>
+                    <Image
+                        source={
+                            user?.profile_photo_url
+                                ? { uri: user.profile_photo_url }
+                                : require('../../assets/images/default-avatar.png')
+                        }
+                        style={styles.profilePic}
+                    />
+                </TouchableOpacity>
+            </View>
 
-            <View style={{ marginTop: 40 }}>
-                <Button title="Çıkış Yap" onPress={handleLogout} color="#d92632" />
+            {/* Ana içerik alanı */}
+            <View style={styles.welcomeCard}>
+                {/* Buraya öneriler, duyurular vs. eklenecek */}
             </View>
 
             <CustomUserBottomBar />
         </View>
     );
+
 }
 
 const styles = StyleSheet.create({
+    pageBackground: {
+        flex: 1,
+        backgroundColor: Colors.secondary, // ← Arka plan tamamlayıcı rengi
+    },
     center: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
+    headerTop: {
+        backgroundColor: Colors.secondary,
+        paddingTop: 50,
+        paddingHorizontal: 20,
+        paddingBottom: 20,
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'flex-end',
     },
-    title: {
-        fontSize: 26,
+    logoText: {
+        fontSize: 22,
         fontWeight: 'bold',
-        color: '#171790',
+        color: Colors.white,
     },
-    subtitle: {
-        fontSize: 16,
-        color: '#555',
+    sloganText: {
+        fontSize: 13,
+        color: Colors.white,
+        marginTop: 2,
+    },
+    profilePic: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        borderWidth: 1,
+        borderColor: Colors.borderLight,
+        backgroundColor: Colors.white,
+    },
+    welcomeCard: {
+        backgroundColor: Colors.white,
+        padding: 20,
+        borderTopLeftRadius: 30,
+        borderTopRightRadius: 30,
+        marginTop: -10,
+        flex: 1,
     },
 });

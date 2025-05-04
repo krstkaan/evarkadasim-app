@@ -40,9 +40,9 @@ const CustomUserBottomBar = () => {
             />
             <BarItem
                 itemText="Hesabım"
-                itemLink="Account"
+                itemLink="AccountScreen"
                 itemIcon="user"
-                isActive={currentRouteName === 'Account'}
+                isActive={currentRouteName === 'AccountScreen'}
             />
         </View>
     );

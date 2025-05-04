@@ -41,10 +41,12 @@ export default function RootNavigation() {
     return (
         <NavigationContainer>
             {user ? (
-                user.character_test_done ? (
-                    <AppStack initialRoute="HomePage" />
-                ) : (
+                !user.dogum_tarihi || !user.gender || !user.il_id || !user.ilce_id ? (
+                    <AppStack initialRoute="ProfileTest" />
+                ) : !user.character_test_done ? (
                     <AppStack initialRoute="CharacterTest" />
+                ) : (
+                    <AppStack initialRoute="HomePage" />
                 )
             ) : (
                 <AuthStack />

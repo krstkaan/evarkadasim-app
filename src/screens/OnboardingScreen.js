@@ -7,7 +7,8 @@ import {
     TouchableOpacity,
     StyleSheet,
 } from 'react-native';
-import { Feather } from '@expo/vector-icons'; // ✅ tek ikon paketi
+import { Feather } from '@expo/vector-icons';
+import Colors from '../constants/colors'; // 🎨 Renk sabitlerini al
 
 const slides = [
     {
@@ -62,7 +63,7 @@ export default function OnboardingScreen({ navigation }) {
     );
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, backgroundColor: Colors.background }}>
             <FlatList
                 ref={flatListRef}
                 data={slides}
@@ -74,21 +75,19 @@ export default function OnboardingScreen({ navigation }) {
                 scrollEnabled={false}
             />
 
-            {/* ← Geri */}
             {currentIndex > 0 && (
                 <TouchableOpacity onPress={handlePrev} style={[styles.arrowButton, { left: 30 }]}>
-                    <Feather name="arrow-left" size={28} color="white" />
+                    <Feather name="arrow-left" size={28} color={Colors.white} />
                 </TouchableOpacity>
             )}
 
-            {/* → İleri ya da Hadi Başlayalım */}
             {currentIndex === slides.length - 1 ? (
                 <TouchableOpacity onPress={handleNext} style={[styles.startButton, { right: 30 }]}>
                     <Text style={styles.startButtonText}>Hadi Başlayalım</Text>
                 </TouchableOpacity>
             ) : (
                 <TouchableOpacity onPress={handleNext} style={[styles.arrowButton, { right: 30 }]}>
-                    <Feather name="arrow-right" size={28} color="white" />
+                    <Feather name="arrow-right" size={28} color={Colors.white} />
                 </TouchableOpacity>
             )}
         </View>
@@ -105,20 +104,20 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: '700',
-        color: '#171790',
+        color: Colors.primary,
         textAlign: 'center',
         marginBottom: 20,
     },
     description: {
         fontSize: 17,
         lineHeight: 24,
-        color: '#444',
+        color: Colors.textDark,
         textAlign: 'center',
     },
     arrowButton: {
         position: 'absolute',
         bottom: 40,
-        backgroundColor: '#171790',
+        backgroundColor: Colors.primary,
         width: 60,
         height: 60,
         borderRadius: 30,
@@ -129,7 +128,7 @@ const styles = StyleSheet.create({
     startButton: {
         position: 'absolute',
         bottom: 40,
-        backgroundColor: '#36C055',
+        backgroundColor: Colors.success,
         paddingHorizontal: 20,
         paddingVertical: 12,
         borderRadius: 24,
@@ -138,7 +137,7 @@ const styles = StyleSheet.create({
         elevation: 5,
     },
     startButtonText: {
-        color: 'white',
+        color: Colors.white,
         fontSize: 16,
         fontWeight: 'bold',
     },
