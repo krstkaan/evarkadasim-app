@@ -12,7 +12,7 @@ const BarItem = ({ itemText, itemLink, itemIcon, isActive }) => {
             <FontAwesome5
                 name={itemIcon}
                 size={20}
-                color={isActive ? Colors.primary : Colors.lightText}
+                color={isActive ? Colors.secondary : Colors.lightText}
             />
             <Text style={[styles.label, isActive && { color: Colors.primary }]}>
                 {itemText}
