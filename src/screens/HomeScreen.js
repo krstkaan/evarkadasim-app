@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -6,6 +6,7 @@ import {
     ActivityIndicator,
     TouchableOpacity,
     Image,
+    ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
@@ -13,12 +14,15 @@ import { useSelector, useDispatch } from 'react-redux';
 import { setUser, clearUser } from '../store/slices/userSlice';
 import api from '../lib/api';
 import CustomUserBottomBar from '../components/CustomUserBottomBar';
+import ListingCard from '../components/ListingCard';
 import Colors from '../constants/colors'; // ✅ Renk paleti
 
 export default function HomeScreen() {
     const user = useSelector(state => state.user.user);
     const dispatch = useDispatch();
     const navigation = useNavigation();
+    const [listings, setListings] = useState([]);
+    const [loadingListings, setLoadingListings] = useState(true);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -33,7 +37,19 @@ export default function HomeScreen() {
             }
         };
 
+        const fetchListings = async () => {
+            try {
+                const response = await api.get('/listings');
+                setListings(response.data);
+            } catch (error) {
+                console.log('İlanlar alınamadı:', error);
+            } finally {
+                setLoadingListings(false);
+            }
+        };
+
         fetchUser();
+        fetchListings();
     }, []);
 
     if (!user) {
@@ -64,21 +80,38 @@ export default function HomeScreen() {
                 </TouchableOpacity>
             </View>
 
-            {/* Ana içerik alanı */}
+            {/* İçerik */}
             <View style={styles.welcomeCard}>
-                {/* Buraya öneriler, duyurular vs. eklenecek */}
+                {loadingListings ? (
+                    <View style={styles.center}>
+                        <ActivityIndicator size="large" color={Colors.primary} />
+                    </View>
+                ) : (
+                    <ScrollView showsVerticalScrollIndicator={false}>
+                        {listings.map((item) => (
+                            <ListingCard
+                                key={item.id}
+                                title={item.title}
+                                description={item.description}
+                                price={item.rent_price}
+                                size={item.square_meters}
+                                image={item.images?.[0]?.image_path}
+                                onPress={() => navigation.navigate('ListingDetailScreen', { id: item.id })}
+                            />
+                        ))}
+                    </ScrollView>
+                )}
             </View>
 
             <CustomUserBottomBar />
         </View>
     );
-
 }
 
 const styles = StyleSheet.create({
     pageBackground: {
         flex: 1,
-        backgroundColor: Colors.secondary, // ← Arka plan tamamlayıcı rengi
+        backgroundColor: Colors.secondary,
     },
     center: {
         flex: 1,

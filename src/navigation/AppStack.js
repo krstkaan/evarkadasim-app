@@ -7,6 +7,7 @@ import CharacterTestScreen from '../screens/CharacterTestScreen';
 import AccountScreen from '../screens/AccountScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import CreateAdvertisementScreen from '../screens/CreateAdvertisementScreen';
+import ListingDetailScreen from '../screens/ListingDetailScreen';
 import Colors from '../constants/colors';
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,16 @@ export default function AppStack({ initialRoute = 'HomePage' }) {
             <Stack.Screen name="CharacterTest" component={CharacterTestScreen} />
             <Stack.Screen name="AccountScreen" component={AccountScreen} />
             <Stack.Screen name="CreateAdvertisementScreen" component={CreateAdvertisementScreen} />
+            <Stack.Screen
+                name="ListingDetailScreen"
+                component={ListingDetailScreen}
+                options={{
+                    title: 'İlan Detayı',
+                    headerShown: true, // <<< Bunu ekle
+                    headerBackTitleVisible: false,
+                    headerTintColor: Colors.primary,
+                }}
+            />
             <Stack.Screen
                 name="EditProfileScreen"
                 component={EditProfileScreen}
