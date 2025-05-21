@@ -29,7 +29,7 @@ Projeyi lokal ortamda çalıştırmak için:
 
 ```bash
 # Repo'yu klonlayın
-git clone https://github.com/<kullanici-adi>/<frontend-repo>.git
+git clone https://github.com/krstkaan/evarkadasim-app.git
 cd frontend-repo
 
 # Gerekli paketleri yükleyin
