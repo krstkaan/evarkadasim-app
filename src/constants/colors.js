@@ -12,6 +12,7 @@ const Colors = {
     textDark: '#001A23',
     textLight: '#7A9E7E',
     white: '#FFFFFF',
+    black: '#000000',
     
 
     // Durumlar

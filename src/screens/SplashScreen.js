@@ -2,6 +2,7 @@
 import React from 'react';
 import { View, Text, ActivityIndicator, StyleSheet, Image } from 'react-native';
 import logo from '../../assets/images/roomiefiesLogo.png';
+import Colors from '../constants/colors';
 
 export default function SplashScreen() {
     return (
@@ -16,5 +17,5 @@ export default function SplashScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     logo: { width: 150, height: 150, resizeMode: 'contain', marginBottom: 20 },
-    title: { fontSize: 32, fontWeight: 'bold', marginBottom: 20, color: '#171790' },
+    title: { fontSize: 32, fontWeight: 'bold', marginBottom: 20, color: Colors.primary },
 });

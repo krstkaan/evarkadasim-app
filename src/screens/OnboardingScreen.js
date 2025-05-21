@@ -73,7 +73,13 @@ export default function OnboardingScreen({ navigation }) {
                 showsHorizontalScrollIndicator={false}
                 keyExtractor={(item) => item.id}
                 scrollEnabled={false}
+                getItemLayout={(data, index) => ({
+                    length: width,
+                    offset: width * index,
+                    index,
+                })}
             />
+
 
             {currentIndex > 0 && (
                 <TouchableOpacity onPress={handlePrev} style={[styles.arrowButton, { left: 30 }]}>

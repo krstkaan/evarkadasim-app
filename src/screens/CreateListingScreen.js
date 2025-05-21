@@ -139,7 +139,7 @@ const StepFourComponent = React.memo(({ styles, step, renderDropdown }) => (
 
 
 
-export default function CreateAdvertisementScreen({ navigation }) {
+export default function CreateListingScreen({ navigation }) {
     const [form, setForm] = useState({
         title: '',
         description: '',

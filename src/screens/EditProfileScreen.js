@@ -16,6 +16,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import * as ImagePicker from 'expo-image-picker';
 import moment from 'moment';
 import Colors from '../constants/colors'; // 👈 Renk sabitlerini kullan
+import { StatusBar } from 'expo-status-bar';
 
 const BASE_URL = 'http://192.168.1.106:8000/api'; // 👈 Kendi backend URL'ini yaz
 
@@ -109,89 +110,95 @@ export default function EditProfileScreen({ navigation }) {
     };
 
     return (
-        <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-            <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
-                <Image
-                    source={
-                        avatarUri
-                            ? { uri: avatarUri }
-                            : user?.profile_photo_url
-                                ? { uri: user.profile_photo_url }
-                                : require('../../assets/images/default-avatar.png')
-                    }
-                    style={styles.avatar}
-                />
-                <Text style={styles.avatarText}>Profil Fotoğrafını Değiştir</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.label}>Ad Soyad</Text>
-            <TextInput style={styles.input} value={name} onChangeText={setName} />
-
-            <Text style={styles.label}>Telefon</Text>
-            <View style={styles.phoneInputContainer}>
-                <Text style={styles.phonePrefix}>+90</Text>
-                <TextInput
-                    style={styles.phoneInput}
-                    value={telefon}
-                    onChangeText={setTelefon}
-                    keyboardType="phone-pad"
-                    maxLength={10}
-                    placeholder="5XXXXXXXXX"
-                />
+        <View style={styles.containerheader} statusbarStyle="dark-content">
+            <StatusBar backgroundColor={Colors.background} />
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>Profil</Text>
             </View>
+            <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+                <TouchableOpacity onPress={pickImage} style={styles.avatarContainer}>
+                    <Image
+                        source={
+                            avatarUri
+                                ? { uri: avatarUri }
+                                : user?.profile_photo_url
+                                    ? { uri: user.profile_photo_url }
+                                    : require('../../assets/images/default-avatar.png')
+                        }
+                        style={styles.avatar}
+                    />
+                    <Text style={styles.avatarText}>Profil Fotoğrafını Değiştir</Text>
+                </TouchableOpacity>
 
-            <Text style={styles.label}>Doğum Tarihi</Text>
-            <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
-                <Text>{dogumTarihi || 'YYYY-MM-DD'}</Text>
-            </TouchableOpacity>
-            {showDatePicker && (
-                <DateTimePicker
-                    value={dogumTarihi ? new Date(dogumTarihi) : new Date()}
-                    mode="date"
-                    display="default"
-                    onChange={handleDateChange}
-                />
-            )}
+                <Text style={styles.label}>Ad Soyad</Text>
+                <TextInput style={styles.input} value={name} onChangeText={setName} />
 
-            <Text style={styles.label}>Cinsiyet</Text>
-            <TouchableOpacity
-                onPress={() => setShowGenderOptions(!showGenderOptions)}
-                style={styles.input}
-            >
-                <Text>{genderOptions.find(opt => opt.value === gender)?.label || 'Seçiniz'}</Text>
-            </TouchableOpacity>
+                <Text style={styles.label}>Telefon</Text>
+                <View style={styles.phoneInputContainer}>
+                    <Text style={styles.phonePrefix}>+90</Text>
+                    <TextInput
+                        style={styles.phoneInput}
+                        value={telefon}
+                        onChangeText={setTelefon}
+                        keyboardType="phone-pad"
+                        maxLength={10}
+                        placeholder="5XXXXXXXXX"
+                    />
+                </View>
 
-            {showGenderOptions && (
-                <View style={styles.genderDropdown}>
-                    {genderOptions.map((option) => (
-                        <TouchableOpacity
-                            key={option.value}
-                            onPress={() => {
-                                setGender(option.value);
-                                setShowGenderOptions(false);
-                            }}
-                            style={[
-                                styles.genderOption,
-                                gender === option.value && styles.genderOptionSelected,
-                            ]}
-                        >
-                            <Text
+                <Text style={styles.label}>Doğum Tarihi</Text>
+                <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.input}>
+                    <Text>{dogumTarihi || 'YYYY-MM-DD'}</Text>
+                </TouchableOpacity>
+                {showDatePicker && (
+                    <DateTimePicker
+                        value={dogumTarihi ? new Date(dogumTarihi) : new Date()}
+                        mode="date"
+                        display="default"
+                        onChange={handleDateChange}
+                    />
+                )}
+
+                <Text style={styles.label}>Cinsiyet</Text>
+                <TouchableOpacity
+                    onPress={() => setShowGenderOptions(!showGenderOptions)}
+                    style={styles.input}
+                >
+                    <Text>{genderOptions.find(opt => opt.value === gender)?.label || 'Seçiniz'}</Text>
+                </TouchableOpacity>
+
+                {showGenderOptions && (
+                    <View style={styles.genderDropdown}>
+                        {genderOptions.map((option) => (
+                            <TouchableOpacity
+                                key={option.value}
+                                onPress={() => {
+                                    setGender(option.value);
+                                    setShowGenderOptions(false);
+                                }}
                                 style={[
-                                    styles.genderOptionText,
-                                    gender === option.value && styles.genderOptionTextSelected,
+                                    styles.genderOption,
+                                    gender === option.value && styles.genderOptionSelected,
                                 ]}
                             >
-                                {option.label}
-                            </Text>
-                        </TouchableOpacity>
-                    ))}
-                </View>
-            )}
+                                <Text
+                                    style={[
+                                        styles.genderOptionText,
+                                        gender === option.value && styles.genderOptionTextSelected,
+                                    ]}
+                                >
+                                    {option.label}
+                                </Text>
+                            </TouchableOpacity>
+                        ))}
+                    </View>
+                )}
 
-            <TouchableOpacity style={styles.button} onPress={handleSave}>
-                <Text style={styles.buttonText}>Kaydet</Text>
-            </TouchableOpacity>
-        </ScrollView>
+                <TouchableOpacity style={styles.button} onPress={handleSave}>
+                    <Text style={styles.buttonText}>Kaydet</Text>
+                </TouchableOpacity>
+            </ScrollView>
+        </View>
     );
 }
 
@@ -289,6 +296,23 @@ const styles = StyleSheet.create({
         color: Colors.white,
         fontSize: 16,
         fontWeight: 'bold',
+    },
+    header: {
+        backgroundColor: Colors.secondary,
+        paddingTop: 20,
+        paddingBottom: 15,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    headerTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: Colors.white,
+    },
+    containerheader: {
+        flex: 1,
+        backgroundColor: Colors.background,
     },
 });
 

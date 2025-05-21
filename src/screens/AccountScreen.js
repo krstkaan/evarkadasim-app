@@ -41,8 +41,8 @@ export default function AccountScreen() {
             {/* Menü Elemanları */}
             <View style={styles.menu}>
                 <MenuItem icon="edit" label="Profili Düzenle" onPress={() => navigation.navigate('EditProfileScreen')} />
-                <MenuItem icon="home" label="İlanlarım" onPress={() => { }} />
-                <MenuItem icon="hearto" label="Favorilerim" onPress={() => { }} />
+                <MenuItem icon="home" label="İlanlarım" onPress={() => navigation.navigate('MyListingsScreen')} />
+                <MenuItem icon="hearto" label="Favorilerim" onPress={() => navigation.navigate('MyFavoritesScreen')} />
                 <MenuItem icon="setting" label="Ayarlar" onPress={() => { }} />
                 <MenuItem icon="logout" label="Çıkış Yap" onPress={handleLogout} isDanger />
             </View>

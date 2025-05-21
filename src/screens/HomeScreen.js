@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     pageBackground: {
         flex: 1,
         backgroundColor: Colors.secondary,
+        paddingBottom: 30,
     },
     center: {
         flex: 1,

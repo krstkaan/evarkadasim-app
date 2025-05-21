@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react'; // useRef eklendi
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import {
     View,
     Text,
@@ -7,13 +7,15 @@ import {
     ScrollView,
     TouchableOpacity,
     ActivityIndicator,
-    Dimensions, // Dimensions eklendi
+    Dimensions,
+    StatusBar,
 } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import api from '../lib/api';
 import Colors from '../constants/colors';
 import { Feather } from '@expo/vector-icons';
 import CustomUserBottomBar from '../components/CustomUserBottomBar';
+import { AntDesign } from '@expo/vector-icons';
 
 // Define the dropdowns we need to fetch
 const DROPDOWN_ENDPOINTS = {
@@ -25,8 +27,8 @@ const DROPDOWN_ENDPOINTS = {
     buildingAges: '/dropdowns/building-ages',
 };
 
-const { width: screenWidth } = Dimensions.get('window'); // Ekran genişliğini al
-const IMAGE_HEIGHT = 250; // Resimler için sabit yükseklik
+const { width: screenWidth } = Dimensions.get('window');
+const IMAGE_HEIGHT = 250;
 
 export default function ListingDetailScreen() {
     const route = useRoute();
@@ -37,8 +39,9 @@ export default function ListingDetailScreen() {
     const [dropdownData, setDropdownData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [activeSlide, setActiveSlide] = useState(0); // Aktif slayt indeksi için state
-    const imageSliderRef = useRef(null); // ScrollView referansı
+    const [activeSlide, setActiveSlide] = useState(0);
+    const imageSliderRef = useRef(null);
+    const [isFavorite, setIsFavorite] = useState(false);
 
     useEffect(() => {
         const fetchAllData = async () => {
@@ -58,11 +61,6 @@ export default function ListingDetailScreen() {
                     ...dropdownPromises,
                 ]);
 
-                // API'den gelen listingResponse.data'nın tek bir ilan nesnesi olduğu varsayılıyor.
-                // Sağladığınız örnek yanıtta bir dizi var, bu /listings/{id} için genellikle tekil nesne olur.
-                // Eğer API /listings/{id} için bir dizi içinde tek bir nesne döndürüyorsa:
-                // setListing(listingResponse.data[0]); şeklinde ayarlama yapmanız gerekebilir.
-                // Ancak genellikle listingResponse.data doğrudan ilan nesnesidir.
                 setListing(listingResponse.data);
 
                 const fetchedDropdowns = dropdownResponsesResolved.reduce((acc, curr) => {
@@ -80,6 +78,21 @@ export default function ListingDetailScreen() {
         };
 
         fetchAllData();
+    }, [id]);
+
+    useEffect(() => {
+        const checkFavoriteStatus = async () => {
+            try {
+                const res = await api.get(`/favorites/check`, {
+                    params: { listing_id: id },
+                });
+                setIsFavorite(res.data.favorited);
+            } catch (err) {
+                console.error("Favori kontrolü başarısız:", err.response?.data || err.message);
+            }
+        };
+
+        checkFavoriteStatus();
     }, [id]);
 
     const getLabelById = useCallback((dropdownKey, itemId) => {
@@ -111,7 +124,7 @@ export default function ListingDetailScreen() {
         );
     }
 
-    const currentListing = listing; // listing state'i zaten doğru nesne olmalı
+    const currentListing = listing;
 
     if (error || !currentListing) {
         return (
@@ -126,12 +139,41 @@ export default function ListingDetailScreen() {
         );
     }
 
+    const toggleFavorite = async () => {
+        try {
+            const res = await api.post('/favorites/toggle', {
+                listing_id: id,
+            });
+            setIsFavorite(res.data.favorited);
+            console.log(`Yeni favori durumu: ${res.data.favorited}`);
+        } catch (err) {
+            console.error("Favori işlemi başarısız:", err.response?.data || err.message);
+        }
+    };
+
     return (
-        <View style={styles.pageBackground}>
+        <View style={styles.container} statusbarStyle="dark-content">
+            <StatusBar backgroundColor={Colors.background}/>
+            <View style={styles.header}>
+                <Text style={styles.headerTitle}>İlan Detayı</Text>
+                <Text style={styles.headerSubtitle}>
+                    {currentListing.title}
+                </Text>
+            </View>
             <View style={styles.detailCard}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {currentListing.images && currentListing.images.length > 0 ? (
                         <View style={styles.sliderContainerStyle}>
+                            <TouchableOpacity
+                                style={styles.favoriteIconContainer}
+                                onPress={toggleFavorite}
+                            >
+                                <AntDesign
+                                    name={isFavorite ? 'heart' : 'hearto'}
+                                    size={26}
+                                    color={isFavorite ? 'red' : 'white'}
+                                />
+                            </TouchableOpacity>
                             <ScrollView
                                 ref={imageSliderRef}
                                 horizontal
@@ -274,6 +316,28 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.secondary,
         paddingBottom: 20, // CustomUserBottomBar yüksekliği kadar padding gerekebilir
     },
+    container: {
+        flex: 1,
+        backgroundColor: Colors.white,
+    },
+    header: {
+        backgroundColor: Colors.secondary,
+        paddingTop: 20,
+        paddingBottom: 15,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 20,
+        borderBottomRightRadius: 20,
+    },
+    headerTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: Colors.white,
+    },
+    headerSubtitle: {
+        fontSize: 14,
+        color: Colors.black,
+        marginTop: 2,
+    },
     center: {
         flex: 1,
         justifyContent: 'center',
@@ -283,6 +347,8 @@ const styles = StyleSheet.create({
     detailCard: {
         backgroundColor: Colors.white,
         flex: 1, // Sayfanın geri kalanını kaplaması için
+        borderTopLeftRadius: 20,  // Header ile uyumlu olması için
+        borderTopRightRadius: 20, // Header ile uyumlu olması için
     },
     // Resim Kaydırıcı Stilleri
     sliderContainerStyle: {
@@ -434,5 +500,14 @@ const styles = StyleSheet.create({
         color: Colors.white,
         fontWeight: 'bold',
         fontSize: 14,
+    },
+    favoriteIconContainer: {
+        position: 'absolute',
+        top: 15, // Header'dan biraz aşağıda dursun
+        right: 15,
+        backgroundColor: 'rgba(0,0,0,0.4)',
+        borderRadius: 20,
+        padding: 6,
+        zIndex: 10,
     },
 });
