@@ -43,6 +43,24 @@ export default function ListingDetailScreen() {
     const imageSliderRef = useRef(null);
     const [isFavorite, setIsFavorite] = useState(false);
 
+    const handleStartChat = async () => {
+        try {
+            const res = await api.post('/chat/start', {
+                target_user_id: currentListing.user.id,
+                listing_id: currentListing.id,
+            });
+
+            const roomId = res.data.room_id;
+            navigation.navigate('ChatScreen', {
+                roomId: roomId,
+                targetUserName: currentListing.user.name,
+            });
+        } catch (err) {
+            console.error("Sohbet başlatılamadı:", err.response?.data || err.message);
+            Alert.alert("Hata", "Sohbet başlatılırken bir sorun oluştu.");
+        }
+    };
+
     useEffect(() => {
         const fetchAllData = async () => {
             setLoading(true);
@@ -153,7 +171,7 @@ export default function ListingDetailScreen() {
 
     return (
         <View style={styles.container} statusbarStyle="dark-content">
-            <StatusBar backgroundColor={Colors.background}/>
+            <StatusBar backgroundColor={Colors.background} />
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>İlan Detayı</Text>
                 <Text style={styles.headerSubtitle}>
@@ -249,7 +267,7 @@ export default function ListingDetailScreen() {
                                 </View>
                                 <TouchableOpacity
                                     style={styles.contactButton}
-                                    onPress={() => navigation.navigate('MessageScreen', { userId: currentListing.user.id })}
+                                    onPress={handleStartChat}
                                 >
                                     <Text style={styles.contactButtonText}>İletişime Geç</Text>
                                 </TouchableOpacity>

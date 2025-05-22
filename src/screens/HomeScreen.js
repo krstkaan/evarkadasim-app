@@ -16,6 +16,8 @@ import api from '../lib/api';
 import CustomUserBottomBar from '../components/CustomUserBottomBar';
 import ListingCard from '../components/ListingCard';
 import Colors from '../constants/colors'; // ✅ Renk paleti
+import { Feather } from '@expo/vector-icons';
+
 
 export default function HomeScreen() {
     const user = useSelector(state => state.user.user);
@@ -68,15 +70,8 @@ export default function HomeScreen() {
                     <Text style={styles.logoText}>Roomiefies</Text>
                     <Text style={styles.sloganText}>Karakterine uygun ev arkadaşını bul</Text>
                 </View>
-                <TouchableOpacity onPress={() => navigation.navigate('AccountScreen')}>
-                    <Image
-                        source={
-                            user?.profile_photo_url
-                                ? { uri: user.profile_photo_url }
-                                : require('../../assets/images/default-avatar.png')
-                        }
-                        style={styles.profilePic}
-                    />
+                <TouchableOpacity onPress={() => navigation.navigate('ChatListScreen')}>
+                    <Feather name="message-circle" size={26} color={Colors.white} />
                 </TouchableOpacity>
             </View>
 

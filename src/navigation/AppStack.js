@@ -11,6 +11,8 @@ import ListingDetailScreen from '../screens/ListingDetailScreen';
 import Colors from '../constants/colors';
 import FavoritesScreen from '../screens/MyFavoritesScreen';
 import MyListingsScreen from '../screens/MyListingsScreen';
+import ChatScreen from '../screens/ChatScreen';
+import ChatListScreen from '../screens/ChatListScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -57,6 +59,26 @@ export default function AppStack({ initialRoute = 'HomePage' }) {
                 component={MyListingsScreen}
                 options={{
                     title: 'İlanlarım',
+                    headerShown: false, // <<< Bunu ekle
+                    headerBackTitleVisible: false,
+                    headerTintColor: Colors.primary,
+                }}
+            />
+            <Stack.Screen
+                name="ChatScreen"
+                component={ChatScreen}
+                options={{
+                    title: 'Mesajlar',
+                    headerShown: false, // <<< Bunu ekle
+                    headerBackTitleVisible: false,
+                    headerTintColor: Colors.primary,
+                }}
+            />
+            <Stack.Screen
+                name="ChatListScreen"
+                component={ChatListScreen}
+                options={{
+                    title: 'Mesajlar',
                     headerShown: false, // <<< Bunu ekle
                     headerBackTitleVisible: false,
                     headerTintColor: Colors.primary,
