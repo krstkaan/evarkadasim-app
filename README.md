@@ -16,11 +16,12 @@ Roomiefies, kullanıcıların karakter testine göre sınıflandırıldığı ve
 - ❤️ **İlan Favorileme:** Kullanıcılar ilanları favorilerine ekleyebilir.
 - 📁 **Favori İlanları Görüntüleme:** Kullanıcının favorilere eklediği ilanlar listelenebilir.
 - ✏️ **Profil Düzenleme:** Doğum tarihi, cinsiyet ve profil fotoğrafı düzenlenebilir.
+- - 💬 **Sohbet Özelliği:** İlan detay ekranında ilan sahibi ile mesajlaşmayı mümkün kılacak bir gerçek zamanlı sohbet sistemi.
+
 
 ### 🔧 Yapılacaklar
 - 🧬 **Eşleşme Sistemi:** Karakter sınıflarına göre ilanların görünürlüğünü filtreleyecek bir eşleşme algoritması geliştirilecek.
 - 🔄 **Dinamik Listeleme:** Kullanıcının sınıfına ve eşleşme skoruna göre ilan listesi güncellenecek.
-- 💬 **Sohbet Özelliği:** İlan detay ekranında ilan sahibi ile mesajlaşmayı mümkün kılacak bir gerçek zamanlı sohbet sistemi eklenecek.
 - 📊 **Ev Arkadaşlığı Geri Bildirim Sistemi:** Eşleşme sonrası başlayan ev arkadaşlığı sürecinde periyodik olarak geri bildirimler alınacak ve algoritma bu verilerle geliştirilecek.
 
 ---
