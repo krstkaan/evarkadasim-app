@@ -1,4 +1,6 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+"use client"
+
+import { useEffect, useState, useCallback, useRef } from "react"
 import {
     View,
     Text,
@@ -9,188 +11,190 @@ import {
     ActivityIndicator,
     Dimensions,
     StatusBar,
-} from 'react-native';
-import { useRoute, useNavigation } from '@react-navigation/native';
-import api from '../lib/api';
-import Colors from '../constants/colors';
-import { Feather } from '@expo/vector-icons';
-import CustomUserBottomBar from '../components/CustomUserBottomBar';
-import { AntDesign } from '@expo/vector-icons';
+    Alert,
+} from "react-native"
+import { useRoute, useNavigation } from "@react-navigation/native"
+import api from "../lib/api"
+import Colors from "../constants/colors"
+import { Feather } from "@expo/vector-icons"
+import CustomUserBottomBar from "../components/CustomUserBottomBar"
+import { AntDesign } from "@expo/vector-icons"
 
 // Define the dropdowns we need to fetch
 const DROPDOWN_ENDPOINTS = {
-    roommateGenders: '/dropdowns/roommate-genders',
-    ageRanges: '/dropdowns/age-ranges',
-    houseTypes: '/dropdowns/house-types',
-    furnitureStatuses: '/dropdowns/furniture-statuses',
-    heatingTypes: '/dropdowns/heating-types',
-    buildingAges: '/dropdowns/building-ages',
-};
+    roommateGenders: "/dropdowns/roommate-genders",
+    ageRanges: "/dropdowns/age-ranges",
+    houseTypes: "/dropdowns/house-types",
+    furnitureStatuses: "/dropdowns/furniture-statuses",
+    heatingTypes: "/dropdowns/heating-types",
+    buildingAges: "/dropdowns/building-ages",
+}
 
-const { width: screenWidth } = Dimensions.get('window');
-const IMAGE_HEIGHT = 250;
+const { width: screenWidth } = Dimensions.get("window")
+const IMAGE_HEIGHT = 250
 
 export default function ListingDetailScreen() {
-    const route = useRoute();
-    const navigation = useNavigation();
-    const { id } = route.params;
+    const route = useRoute()
+    const navigation = useNavigation()
+    const { id } = route.params
 
-    const [listing, setListing] = useState(null);
-    const [dropdownData, setDropdownData] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [activeSlide, setActiveSlide] = useState(0);
-    const imageSliderRef = useRef(null);
-    const [isFavorite, setIsFavorite] = useState(false);
+    const [listing, setListing] = useState(null)
+    const [dropdownData, setDropdownData] = useState(null)
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+    const [activeSlide, setActiveSlide] = useState(0)
+    const imageSliderRef = useRef(null)
+    const [isFavorite, setIsFavorite] = useState(false)
 
     const handleStartChat = async () => {
         try {
-            const res = await api.post('/chat/start', {
-                target_user_id: currentListing.user.id,
-                listing_id: currentListing.id,
-            });
+            if (!currentListing || !currentListing.user) {
+                Alert.alert("Hata", "İlan sahibi bilgisi bulunamadı.")
+                return
+            }
 
-            const roomId = res.data.room_id;
-            navigation.navigate('ChatScreen', {
+            // İlan sahibinin ID'sini al
+            const targetUserId = currentListing.user.id
+
+            const res = await api.post("/chat/start", {
+                target_user_id: targetUserId,
+                listing_id: currentListing.id,
+            })
+
+            const roomId = res.data.room_id
+
+            // ChatScreen'e geçerken targetUserId'yi de gönder
+            navigation.navigate("ChatScreen", {
                 roomId: roomId,
+                targetUserId: targetUserId, // Bu satır eklendi!
                 targetUserName: currentListing.user.name,
-            });
+            })
+
+            console.log("Chat started with user ID:", targetUserId, "Room ID:", roomId)
         } catch (err) {
-            console.error("Sohbet başlatılamadı:", err.response?.data || err.message);
-            Alert.alert("Hata", "Sohbet başlatılırken bir sorun oluştu.");
+            console.error("Sohbet başlatılamadı:", err.response?.data || err.message)
+            Alert.alert("Hata", "Sohbet başlatılırken bir sorun oluştu.")
         }
-    };
+    }
 
     useEffect(() => {
         const fetchAllData = async () => {
-            setLoading(true);
-            setError(null);
+            setLoading(true)
+            setError(null)
             try {
-                const listingPromise = api.get(`/listings/${id}`);
-                const dropdownPromises = Object.entries(DROPDOWN_ENDPOINTS).map(
-                    async ([key, endpoint]) => {
-                        const response = await api.get(endpoint);
-                        return { key, data: response.data };
-                    }
-                );
+                const listingPromise = api.get(`/listings/${id}`)
+                const dropdownPromises = Object.entries(DROPDOWN_ENDPOINTS).map(async ([key, endpoint]) => {
+                    const response = await api.get(endpoint)
+                    return { key, data: response.data }
+                })
 
-                const [listingResponse, ...dropdownResponsesResolved] = await Promise.all([
-                    listingPromise,
-                    ...dropdownPromises,
-                ]);
+                const [listingResponse, ...dropdownResponsesResolved] = await Promise.all([listingPromise, ...dropdownPromises])
 
-                setListing(listingResponse.data);
+                setListing(listingResponse.data)
 
                 const fetchedDropdowns = dropdownResponsesResolved.reduce((acc, curr) => {
-                    acc[curr.key] = curr.data;
-                    return acc;
-                }, {});
-                setDropdownData(fetchedDropdowns);
-
+                    acc[curr.key] = curr.data
+                    return acc
+                }, {})
+                setDropdownData(fetchedDropdowns)
             } catch (err) {
-                console.error('Veri alınamadı:', err.response ? err.response.data : err.message);
-                setError('İlan veya detaylar yüklenirken bir hata oluştu.');
+                console.error("Veri alınamadı:", err.response ? err.response.data : err.message)
+                setError("İlan veya detaylar yüklenirken bir hata oluştu.")
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
+        }
 
-        fetchAllData();
-    }, [id]);
+        fetchAllData()
+    }, [id])
 
     useEffect(() => {
         const checkFavoriteStatus = async () => {
             try {
                 const res = await api.get(`/favorites/check`, {
                     params: { listing_id: id },
-                });
-                setIsFavorite(res.data.favorited);
+                })
+                setIsFavorite(res.data.favorited)
             } catch (err) {
-                console.error("Favori kontrolü başarısız:", err.response?.data || err.message);
+                console.error("Favori kontrolü başarısız:", err.response?.data || err.message)
             }
-        };
-
-        checkFavoriteStatus();
-    }, [id]);
-
-    const getLabelById = useCallback((dropdownKey, itemId) => {
-        if (!dropdownData || !dropdownData[dropdownKey] || !itemId) {
-            return "-";
         }
-        const items = dropdownData[dropdownKey];
-        if (!Array.isArray(items)) {
-            console.warn(`Dropdown items for key "${dropdownKey}" is not an array:`, items);
-            return "-";
-        }
-        const item = items.find(d => d.id === itemId);
-        return item ? item.label : "-";
-    }, [dropdownData]);
+
+        checkFavoriteStatus()
+    }, [id])
+
+    const getLabelById = useCallback(
+        (dropdownKey, itemId) => {
+            if (!dropdownData || !dropdownData[dropdownKey] || !itemId) {
+                return "-"
+            }
+            const items = dropdownData[dropdownKey]
+            if (!Array.isArray(items)) {
+                console.warn(`Dropdown items for key "${dropdownKey}" is not an array:`, items)
+                return "-"
+            }
+            const item = items.find((d) => d.id === itemId)
+            return item ? item.label : "-"
+        },
+        [dropdownData],
+    )
 
     const handleScroll = (event) => {
-        const contentOffsetX = event.nativeEvent.contentOffset.x;
-        const currentIndex = Math.round(contentOffsetX / screenWidth);
+        const contentOffsetX = event.nativeEvent.contentOffset.x
+        const currentIndex = Math.round(contentOffsetX / screenWidth)
         if (currentIndex !== activeSlide) {
-            setActiveSlide(currentIndex);
+            setActiveSlide(currentIndex)
         }
-    };
+    }
 
     if (loading) {
         return (
             <View style={styles.center}>
                 <ActivityIndicator size="large" color={Colors.primary} />
             </View>
-        );
+        )
     }
 
-    const currentListing = listing;
+    const currentListing = listing
 
     if (error || !currentListing) {
         return (
             <View style={styles.center}>
-                <Text style={{ color: Colors.danger, textAlign: 'center' }}>
-                    {error || 'İlan bulunamadı veya yüklenemedi.'}
+                <Text style={{ color: Colors.danger, textAlign: "center" }}>
+                    {error || "İlan bulunamadı veya yüklenemedi."}
                 </Text>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{ marginTop: 20 }}>
                     <Text style={{ color: Colors.primary }}>Geri Dön</Text>
                 </TouchableOpacity>
             </View>
-        );
+        )
     }
 
     const toggleFavorite = async () => {
         try {
-            const res = await api.post('/favorites/toggle', {
+            const res = await api.post("/favorites/toggle", {
                 listing_id: id,
-            });
-            setIsFavorite(res.data.favorited);
-            console.log(`Yeni favori durumu: ${res.data.favorited}`);
+            })
+            setIsFavorite(res.data.favorited)
+            console.log(`Yeni favori durumu: ${res.data.favorited}`)
         } catch (err) {
-            console.error("Favori işlemi başarısız:", err.response?.data || err.message);
+            console.error("Favori işlemi başarısız:", err.response?.data || err.message)
         }
-    };
+    }
 
     return (
         <View style={styles.container} statusbarStyle="dark-content">
             <StatusBar backgroundColor={Colors.background} />
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>İlan Detayı</Text>
-                <Text style={styles.headerSubtitle}>
-                    {currentListing.title}
-                </Text>
+                <Text style={styles.headerSubtitle}>{currentListing.title}</Text>
             </View>
             <View style={styles.detailCard}>
                 <ScrollView showsVerticalScrollIndicator={false}>
                     {currentListing.images && currentListing.images.length > 0 ? (
                         <View style={styles.sliderContainerStyle}>
-                            <TouchableOpacity
-                                style={styles.favoriteIconContainer}
-                                onPress={toggleFavorite}
-                            >
-                                <AntDesign
-                                    name={isFavorite ? 'heart' : 'hearto'}
-                                    size={26}
-                                    color={isFavorite ? 'red' : 'white'}
-                                />
+                            <TouchableOpacity style={styles.favoriteIconContainer} onPress={toggleFavorite}>
+                                <AntDesign name={isFavorite ? "heart" : "hearto"} size={26} color={isFavorite ? "red" : "white"} />
                             </TouchableOpacity>
                             <ScrollView
                                 ref={imageSliderRef}
@@ -215,16 +219,11 @@ export default function ListingDetailScreen() {
                                         <TouchableOpacity
                                             key={`dot-${index}`}
                                             onPress={() => {
-                                                imageSliderRef.current?.scrollTo({ x: screenWidth * index, animated: true });
-                                                setActiveSlide(index);
+                                                imageSliderRef.current?.scrollTo({ x: screenWidth * index, animated: true })
+                                                setActiveSlide(index)
                                             }}
                                         >
-                                            <View
-                                                style={[
-                                                    styles.paginationDot,
-                                                    activeSlide === index ? styles.paginationDotActive : {},
-                                                ]}
-                                            />
+                                            <View style={[styles.paginationDot, activeSlide === index ? styles.paginationDotActive : {}]} />
                                         </TouchableOpacity>
                                     ))}
                                 </View>
@@ -256,7 +255,7 @@ export default function ListingDetailScreen() {
                                         source={
                                             currentListing.user.profile_photo_url
                                                 ? { uri: currentListing.user.profile_photo_url }
-                                                : require('../../assets/images/default-avatar.png')
+                                                : require("../../assets/images/default-avatar.png")
                                         }
                                         style={styles.ownerImage}
                                     />
@@ -265,10 +264,7 @@ export default function ListingDetailScreen() {
                                         <Text style={styles.ownerType}>İlan Sahibi</Text>
                                     </View>
                                 </View>
-                                <TouchableOpacity
-                                    style={styles.contactButton}
-                                    onPress={handleStartChat}
-                                >
+                                <TouchableOpacity style={styles.contactButton} onPress={handleStartChat}>
                                     <Text style={styles.contactButtonText}>İletişime Geç</Text>
                                 </TouchableOpacity>
                             </View>
@@ -284,39 +280,31 @@ export default function ListingDetailScreen() {
                             <View style={styles.detailsGrid}>
                                 <View style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>Isınma Tipi</Text>
-                                    <Text style={styles.detailValue}>
-                                        {getLabelById('heatingTypes', currentListing.heating_type_id)}
-                                    </Text>
+                                    <Text style={styles.detailValue}>{getLabelById("heatingTypes", currentListing.heating_type_id)}</Text>
                                 </View>
                                 <View style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>Eşya Durumu</Text>
                                     <Text style={styles.detailValue}>
-                                        {getLabelById('furnitureStatuses', currentListing.furniture_status_id)}
+                                        {getLabelById("furnitureStatuses", currentListing.furniture_status_id)}
                                     </Text>
                                 </View>
                                 <View style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>Ev Tipi</Text>
-                                    <Text style={styles.detailValue}>
-                                        {getLabelById('houseTypes', currentListing.house_type_id)}
-                                    </Text>
+                                    <Text style={styles.detailValue}>{getLabelById("houseTypes", currentListing.house_type_id)}</Text>
                                 </View>
                                 <View style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>Bina Yaşı</Text>
-                                    <Text style={styles.detailValue}>
-                                        {getLabelById('buildingAges', currentListing.building_age_id)}
-                                    </Text>
+                                    <Text style={styles.detailValue}>{getLabelById("buildingAges", currentListing.building_age_id)}</Text>
                                 </View>
                                 <View style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>Tercih Edilen Cinsiyet</Text>
                                     <Text style={styles.detailValue}>
-                                        {getLabelById('roommateGenders', currentListing.roommate_gender_id)}
+                                        {getLabelById("roommateGenders", currentListing.roommate_gender_id)}
                                     </Text>
                                 </View>
                                 <View style={styles.detailItem}>
                                     <Text style={styles.detailLabel}>Tercih Edilen Yaş Aralığı</Text>
-                                    <Text style={styles.detailValue}>
-                                        {getLabelById('ageRanges', currentListing.age_range_id)}
-                                    </Text>
+                                    <Text style={styles.detailValue}>{getLabelById("ageRanges", currentListing.age_range_id)}</Text>
                                 </View>
                             </View>
                         </View>
@@ -325,7 +313,7 @@ export default function ListingDetailScreen() {
             </View>
             <CustomUserBottomBar />
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
@@ -348,7 +336,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.white,
     },
     headerSubtitle: {
@@ -358,33 +346,34 @@ const styles = StyleSheet.create({
     },
     center: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         padding: 20,
     },
     detailCard: {
         backgroundColor: Colors.white,
         flex: 1, // Sayfanın geri kalanını kaplaması için
-        borderTopLeftRadius: 20,  // Header ile uyumlu olması için
+        borderTopLeftRadius: 20, // Header ile uyumlu olması için
         borderTopRightRadius: 20, // Header ile uyumlu olması için
     },
     // Resim Kaydırıcı Stilleri
     sliderContainerStyle: {
         height: IMAGE_HEIGHT,
-        width: '100%', // Genişlik ekran genişliği kadar olacak (ScrollView içindeki resimler screenWidth alacak)
-        position: 'relative', // Pagination dot'ların pozisyonlanması için
+        width: "100%", // Genişlik ekran genişliği kadar olacak (ScrollView içindeki resimler screenWidth alacak)
+        position: "relative", // Pagination dot'ların pozisyonlanması için
         backgroundColor: Colors.lightGray, // Resimler yüklenene kadar veya boşlukta görünecek renk
     },
     sliderImage: {
         width: screenWidth, // Her bir resim ekran genişliğinde
         height: IMAGE_HEIGHT,
-        resizeMode: 'cover', // Resmin boyutlandırma şekli
+        resizeMode: "cover", // Resmin boyutlandırma şekli
     },
-    mainImagePlaceholder: { // Resim olmadığında gösterilecek alan için stil
-        width: '100%',
+    mainImagePlaceholder: {
+        // Resim olmadığında gösterilecek alan için stil
+        width: "100%",
         // height: IMAGE_HEIGHT, // Yükseklik global değişkenden alınacak
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         backgroundColor: Colors.lightGray,
     },
     noImageText: {
@@ -392,19 +381,19 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     paginationContainer: {
-        position: 'absolute',
+        position: "absolute",
         bottom: 15,
         left: 0,
         right: 0,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
     },
     paginationDot: {
         width: 8,
         height: 8,
         borderRadius: 4,
-        backgroundColor: 'rgba(255, 255, 255, 0.7)', // Daha görünür bir renk
+        backgroundColor: "rgba(255, 255, 255, 0.7)", // Daha görünür bir renk
         marginHorizontal: 5,
         padding: 5, // Dokunma alanını büyütmek için (görsel boyutu etkilemez)
     },
@@ -420,24 +409,24 @@ const styles = StyleSheet.create({
     },
     title: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.primary,
         marginBottom: 15,
     },
     priceInfoContainer: {
-        flexDirection: 'row',
+        flexDirection: "row",
         backgroundColor: Colors.lightGray,
         borderRadius: 12,
         padding: 15,
         marginBottom: 20,
     },
     infoItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
         marginRight: 20,
     },
     infoValue: {
-        fontWeight: 'bold',
+        fontWeight: "bold",
         fontSize: 16,
         color: Colors.primary,
         marginLeft: 8,
@@ -447,7 +436,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.primary,
         marginBottom: 10,
     },
@@ -457,12 +446,12 @@ const styles = StyleSheet.create({
         lineHeight: 22,
     },
     detailsGrid: {
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        justifyContent: 'space-between',
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
     },
     detailItem: {
-        width: '48%',
+        width: "48%",
         backgroundColor: Colors.lightGray,
         borderRadius: 10,
         padding: 12,
@@ -475,7 +464,7 @@ const styles = StyleSheet.create({
     },
     detailValue: {
         fontSize: 14,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.primary,
     },
     ownerCard: {
@@ -483,13 +472,13 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         padding: 15,
         marginVertical: 10,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
     },
     ownerInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        flexDirection: "row",
+        alignItems: "center",
     },
     ownerImage: {
         width: 50,
@@ -501,7 +490,7 @@ const styles = StyleSheet.create({
     },
     ownerName: {
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.primary,
     },
     ownerType: {
@@ -516,16 +505,16 @@ const styles = StyleSheet.create({
     },
     contactButtonText: {
         color: Colors.white,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         fontSize: 14,
     },
     favoriteIconContainer: {
-        position: 'absolute',
+        position: "absolute",
         top: 15, // Header'dan biraz aşağıda dursun
         right: 15,
-        backgroundColor: 'rgba(0,0,0,0.4)',
+        backgroundColor: "rgba(0,0,0,0.4)",
         borderRadius: 20,
         padding: 6,
         zIndex: 10,
     },
-});
+})

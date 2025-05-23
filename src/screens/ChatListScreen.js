@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+"use client"
+
+import { useEffect, useState } from "react"
 import {
     View,
     Text,
@@ -8,47 +10,50 @@ import {
     StyleSheet,
     ActivityIndicator,
     StatusBar,
-    Alert,
     Dimensions,
-} from 'react-native';
-import api from '../lib/api';
-import Colors from '../constants/colors';
-import { useNavigation } from '@react-navigation/native';
-import { FontAwesome } from '@expo/vector-icons';
-import CustomUserBottomBar from '../components/CustomUserBottomBar';
+} from "react-native"
+import api from "../lib/api"
+import Colors from "../constants/colors"
+import { useNavigation } from "@react-navigation/native"
+import { FontAwesome } from "@expo/vector-icons"
+import CustomUserBottomBar from "../components/CustomUserBottomBar"
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window")
 
 export default function ChatListScreen() {
-    const [rooms, setRooms] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const navigation = useNavigation();
+    const [rooms, setRooms] = useState([])
+    const [loading, setLoading] = useState(true)
+    const navigation = useNavigation()
 
     useEffect(() => {
         const fetchRooms = async () => {
             try {
-                const res = await api.get('/chat/my-rooms');
-                setRooms(res.data.rooms || []);
+                const res = await api.get("/chat/my-rooms")
+                setRooms(res.data.rooms || [])
             } catch (err) {
-                console.error('Sohbet odaları alınamadı:', err.response?.data || err.message);
+                console.error("Sohbet odaları alınamadı:", err.response?.data || err.message)
             } finally {
-                setLoading(false);
+                setLoading(false)
             }
-        };
-        fetchRooms();
-    }, []);
+        }
+        fetchRooms()
+    }, [])
 
     const renderItem = ({ item }) => {
-        const isUser1 = item.user_1_id === item.current_user_id;
-        const otherUser = isUser1 ? item.user2 : item.user1;
+        const isUser1 = item.user_1_id === item.current_user_id
+        const otherUser = isUser1 ? item.user2 : item.user1
+
+        // Hedef kullanıcı ID'sini belirle
+        const targetUserId = isUser1 ? item.user_2_id : item.user_1_id
 
         return (
             <TouchableOpacity
                 style={styles.card}
                 onPress={() =>
-                    navigation.navigate('ChatScreen', {
+                    navigation.navigate("ChatScreen", {
                         roomId: item.id,
-                        targetUserName: otherUser?.name || 'Kullanıcı',
+                        targetUserId: targetUserId, // Bu satır eklendi!
+                        targetUserName: otherUser?.name || "Kullanıcı",
                     })
                 }
             >
@@ -57,7 +62,7 @@ export default function ChatListScreen() {
                         source={
                             otherUser?.profile_photo_url
                                 ? { uri: otherUser.profile_photo_url }
-                                : require('../../assets/images/default-avatar.png')
+                                : require("../../assets/images/default-avatar.png")
                         }
                         style={styles.image}
                         resizeMode="cover"
@@ -65,15 +70,15 @@ export default function ChatListScreen() {
                 </View>
                 <View style={styles.info}>
                     <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
-                        {otherUser?.name || 'Kullanıcı'}
+                        {otherUser?.name || "Kullanıcı"}
                     </Text>
                     <Text style={styles.lastMessage} numberOfLines={1}>
                         Sohbete gitmek için dokunun
                     </Text>
                 </View>
             </TouchableOpacity>
-        );
-    };
+        )
+    }
 
     return (
         <View style={styles.container}>
@@ -81,7 +86,7 @@ export default function ChatListScreen() {
             <View style={styles.header}>
                 <Text style={styles.headerTitle}>Sohbetlerim</Text>
                 <Text style={styles.headerSubtitle}>
-                    {rooms.length > 0 ? `${rooms.length} aktif sohbet` : 'Sohbet bulunmuyor'}
+                    {rooms.length > 0 ? `${rooms.length} aktif sohbet` : "Sohbet bulunmuyor"}
                 </Text>
             </View>
 
@@ -107,7 +112,7 @@ export default function ChatListScreen() {
 
             <CustomUserBottomBar />
         </View>
-    );
+    )
 }
 
 const styles = StyleSheet.create({
@@ -125,7 +130,7 @@ const styles = StyleSheet.create({
     },
     headerTitle: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.white,
     },
     headerSubtitle: {
@@ -138,9 +143,9 @@ const styles = StyleSheet.create({
         backgroundColor: Colors.cardBackground,
         marginBottom: 16,
         borderRadius: 15,
-        overflow: 'hidden',
-        flexDirection: 'row',
-        alignItems: 'center',
+        overflow: "hidden",
+        flexDirection: "row",
+        alignItems: "center",
         marginHorizontal: 16,
         padding: 12,
         shadowColor: Colors.textDark,
@@ -153,19 +158,19 @@ const styles = StyleSheet.create({
         width: 50,
         height: 50,
         borderRadius: 25,
-        overflow: 'hidden',
+        overflow: "hidden",
         marginRight: 12,
     },
     image: {
-        width: '100%',
-        height: '100%',
+        width: "100%",
+        height: "100%",
     },
     info: {
         flex: 1,
     },
     title: {
         fontSize: 16,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.primary,
         marginBottom: 4,
     },
@@ -175,8 +180,8 @@ const styles = StyleSheet.create({
     },
     loadingContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
     },
     listContent: {
         paddingTop: 16,
@@ -184,14 +189,14 @@ const styles = StyleSheet.create({
     },
     emptyContainer: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
+        justifyContent: "center",
+        alignItems: "center",
         paddingHorizontal: 30,
         marginTop: -50,
     },
     emptyTitle: {
         fontSize: 22,
-        fontWeight: 'bold',
+        fontWeight: "bold",
         color: Colors.primary,
         marginTop: 20,
         marginBottom: 8,
@@ -199,7 +204,7 @@ const styles = StyleSheet.create({
     emptySubtitle: {
         fontSize: 16,
         color: Colors.textLight,
-        textAlign: 'center',
+        textAlign: "center",
         marginBottom: 30,
     },
-});
+})
