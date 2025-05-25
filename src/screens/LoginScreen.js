@@ -35,6 +35,7 @@ export default function LoginScreen({ navigation }) {
             const { token } = response.data;
             await AsyncStorage.setItem('authToken', token);
             setErrorMessage('');
+
             const me = await api.get('/me');
             dispatch(setUser(me.data));
 
@@ -46,9 +47,15 @@ export default function LoginScreen({ navigation }) {
                 navigation.replace('Home');
             }
         } catch (error) {
-            setErrorMessage(parseLaravelErrors(error));
+            // ✅ Özel onaylı kontrolü
+            if (error.response?.status === 403) {
+                setErrorMessage(error.response?.data?.error || 'Hesabınız onaylı değil.');
+            } else {
+                setErrorMessage(parseLaravelErrors(error));
+            }
         }
     };
+
 
     return (
         <KeyboardAvoidingView
