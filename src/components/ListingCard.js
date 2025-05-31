@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colors from '../constants/colors';
 
-export default function ListingCard({ title, description, price, size, image, onPress }) {
+export default function ListingCard({ title, description, price, size, image, onPress, score }) {
     const fullImageUrl = `http://192.168.1.111:8000/storage/${image}`;
 
 
@@ -16,6 +16,9 @@ export default function ListingCard({ title, description, price, size, image, on
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.description}>{description}</Text>
                 <Text style={styles.details}>{size} m² • {price}₺</Text>
+                {score !== undefined && (
+                    <Text style={styles.scoreText}>Uyum Skoru: {score.toFixed(1)}%</Text>
+                )}
             </View>
         </TouchableOpacity>
     );
@@ -51,5 +54,11 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: Colors.primary,
         fontWeight: '500',
+    },
+    scoreText: {
+        marginTop: 4,
+        fontSize: 13,
+        fontWeight: '500',
+        color: Colors.success, // Örneğin yeşil tonu için
     },
 });

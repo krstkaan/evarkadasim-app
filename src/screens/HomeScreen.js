@@ -91,6 +91,7 @@ export default function HomeScreen() {
                                 price={item.rent_price}
                                 size={item.square_meters}
                                 image={item.images?.[0]?.image_path}
+                                score={item.match_score}
                                 onPress={() => navigation.navigate('ListingDetailScreen', { id: item.id })}
                             />
                         ))}
