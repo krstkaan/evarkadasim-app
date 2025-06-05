@@ -182,6 +182,23 @@ export default function ListingDetailScreen() {
         }
     }
 
+    const handleApplyForRoommate = async () => {
+        try {
+            const res = await api.post("/roommate-requests", {
+                listing_id: currentListing.id,
+            });
+
+            Alert.alert("Başarılı", "Ev arkadaşlığı başvurusu gönderildi.");
+        } catch (err) {
+            if (err.response?.status === 409) {
+                Alert.alert("Zaten Başvuruldu", "Bu ilana zaten başvuru yaptınız.");
+            } else {
+                console.error("Başvuru hatası:", err.response?.data || err.message);
+                Alert.alert("Hata", "Başvuru gönderilirken bir hata oluştu.");
+            }
+        }
+    };
+
     return (
         <View style={styles.container} statusbarStyle="dark-content">
             <StatusBar backgroundColor={Colors.background} />
@@ -269,6 +286,12 @@ export default function ListingDetailScreen() {
                                 </TouchableOpacity>
                             </View>
                         )}
+                        <TouchableOpacity
+                            style={[styles.contactButton,]}
+                            onPress={handleApplyForRoommate}
+                        >
+                            <Text style={styles.contactButtonText}>Ev Arkadaşı Olarak Başvur</Text>
+                        </TouchableOpacity>
 
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Açıklama</Text>
