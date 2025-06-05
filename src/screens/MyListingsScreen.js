@@ -43,7 +43,7 @@ export default function MyListingsScreen() {
                 // Case 3: API response is not in an expected format, or it's a valid but empty/non-array response
                 // Log a warning if the data exists but isn't in an expected structure
                 if (res.data !== null && res.data !== undefined && typeof res.data !== 'string' && !Array.isArray(res.data)) {
-                     console.warn(
+                    console.warn(
                         'MyListingsScreen: API response for /listings/me was not in a recognized format. Expected an array or an object with a "listings" property (array). Received:',
                         res.data
                     );
@@ -196,13 +196,21 @@ export default function MyListingsScreen() {
             </View>
 
             <View style={styles.addButtonContainer}>
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => navigation.navigate('CreateListingScreen')}
-                >
-                    <FontAwesome name="plus" size={16} color={Colors.white} style={styles.addIcon} />
-                    <Text style={styles.addButtonText}>Yeni İlan Ekle</Text>
-                </TouchableOpacity>
+                {listings.length === 0 ? (
+                    <TouchableOpacity
+                        style={styles.addButton}
+                        onPress={() => navigation.navigate('CreateListingScreen')}
+                    >
+                        <FontAwesome name="plus" size={16} color={Colors.white} style={styles.addIcon} />
+                        <Text style={styles.addButtonText}>Yeni İlan Ekle</Text>
+                    </TouchableOpacity>
+                ) : (
+                    <View style={styles.limitInfoBox}>
+                        <Text style={styles.limitInfoText}>
+                            Sadece bir ilanınız olabilir. Mevcut ilanı düzenleyebilir veya silebilirsiniz.
+                        </Text>
+                    </View>
+                )}
             </View>
 
             {/* This check is also safe now */}

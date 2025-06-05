@@ -11,14 +11,13 @@ import {
     Dimensions,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage'ı import et
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import api from '../lib/api';
 import Colors from '../constants/colors';
 import CustomUserBottomBar from '../components/CustomUserBottomBar';
 import { ActivityIndicator } from 'react-native';
 import ListingGate from '../components/ListingGate';
-
-
+import { FontAwesome } from '@expo/vector-icons';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -37,6 +36,9 @@ const STEP_MESSAGES = {
     3: 'Evin teknik detaylarını paylaşalım.',
     4: 'Nasıl bir ev arkadaşı arıyorsun?',
 };
+
+
+
 
 const StepOneComponent = React.memo(({ styles, step, images, pickImage, form, setForm, deleteImage }) => (
     <View style={styles.stepContainer}>
@@ -136,9 +138,6 @@ const StepFourComponent = React.memo(({ styles, step, renderDropdown }) => (
     </View>
 ));
 
-
-
-
 export default function CreateListingScreen({ navigation }) {
     const [form, setForm] = useState({
         title: '',
@@ -165,9 +164,19 @@ export default function CreateListingScreen({ navigation }) {
         const fetchMyListing = async () => {
             try {
                 const response = await api.get('/listings/me');
-                setMyListing(response.data); // varsa object, yoksa null
+
+                if (Array.isArray(response.data) && response.data.length > 0) {
+                    setMyListing(response.data[0]);
+                    navigation.replace('MyListingsScreen'); // 👈 Direkt yönlendir
+                } else if (response.data && !Array.isArray(response.data)) {
+                    setMyListing(response.data);
+                    navigation.replace('MyListingsScreen'); // 👈 Direkt yönlendir
+                } else {
+                    setMyListing(null);
+                }
             } catch (error) {
                 console.error('İlan kontrol hatası:', error);
+                setMyListing(null);
             } finally {
                 setLoadingListing(false);
             }
@@ -175,7 +184,6 @@ export default function CreateListingScreen({ navigation }) {
 
         fetchMyListing();
     }, []);
-
 
 
     useEffect(() => {
@@ -189,7 +197,6 @@ export default function CreateListingScreen({ navigation }) {
                 setDropdowns(newData);
             } catch (error) {
                 console.error("Dropdown verileri yüklenirken hata:", error);
-                // Alert.alert("Hata", "Veriler yüklenemedi. Lütfen tekrar deneyin.");
             }
         };
         fetchDropdowns();
@@ -224,7 +231,6 @@ export default function CreateListingScreen({ navigation }) {
     const memoizedDeleteImage = useCallback((indexToDelete) => {
         setImages(currentImages => currentImages.filter((_, index) => index !== indexToDelete));
     }, []);
-
 
     const validateCurrentStep = useCallback(() => {
         let missingFieldsMessages = [];
@@ -266,7 +272,6 @@ export default function CreateListingScreen({ navigation }) {
         }
         return true;
     }, [step, form, images]);
-
 
     const memoizedHandleSubmit = useCallback(async () => {
         const token = await AsyncStorage.getItem('authToken');
@@ -317,7 +322,6 @@ export default function CreateListingScreen({ navigation }) {
             Alert.alert('Hata', 'İlan oluşturulamadı. İnternet bağlantınızı kontrol edin.');
         }
     }, [form, images, navigation]);
-
 
     const handleNextOrSubmit = () => {
         if (!validateCurrentStep()) {
@@ -382,6 +386,20 @@ export default function CreateListingScreen({ navigation }) {
         }
     };
 
+    // Loading durumunu göster
+    if (loadingListing) {
+        return (
+            <ListingGate navigation={navigation}>
+                <View style={styles.loadingContainer}>
+                    <ActivityIndicator size="large" color={Colors.primary} />
+                    <Text style={styles.loadingText}>İlan durumunuz kontrol ediliyor...</Text>
+                </View>
+                <CustomUserBottomBar navigation={navigation} />
+            </ListingGate>
+        );
+    }
+
+    // Normal ilan oluşturma formu
     return (
         <ListingGate navigation={navigation}>
             <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="always">
@@ -405,7 +423,6 @@ export default function CreateListingScreen({ navigation }) {
             <CustomUserBottomBar navigation={navigation} />
         </ListingGate>
     );
-
 }
 
 const styles = StyleSheet.create({
@@ -414,6 +431,66 @@ const styles = StyleSheet.create({
         paddingBottom: 130,
         backgroundColor: Colors.lightGray,
         minHeight: SCREEN_HEIGHT - 80,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: Colors.lightGray,
+        minHeight: SCREEN_HEIGHT - 80,
+    },
+    loadingText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: Colors.primary,
+        textAlign: 'center',
+    },
+    existingListingContainer: {
+        flex: 1,
+    },
+    listingInfo: {
+        padding: 20,
+        gap: 16,
+    },
+    listingTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        color: Colors.primary,
+        textAlign: 'center',
+    },
+    listingStatus: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: Colors.secondary,
+        textAlign: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 16,
+        backgroundColor: Colors.lightGray,
+        borderRadius: 8,
+    },
+    listingRent: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: Colors.primary,
+        textAlign: 'center',
+    },
+    listingDescription: {
+        fontSize: 16,
+        color: Colors.textDark,
+        textAlign: 'center',
+        lineHeight: 22,
+    },
+    backToHomeButton: {
+        backgroundColor: Colors.primary,
+        padding: 16,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 20,
+    },
+    backToHomeButtonText: {
+        color: Colors.white,
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     stepContainer: {
         flexGrow: 1,
