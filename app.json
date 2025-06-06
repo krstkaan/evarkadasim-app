@@ -4,7 +4,10 @@
     "slug": "evarkadasim-app",
     "version": "1.0.0",
     "extra": {
-      "BACKEND_URL": "http://192.168.1.111:8000/api"
+      "BACKEND_URL": "http://192.168.1.111:8000/api",
+      "eas": {
+        "projectId": "c01aa029-9dd6-4e40-8a4b-df873fbb05d9"
+      }
     },
     "orientation": "portrait",
     "icon": "./assets/images/roomiefiesLogo.png",
@@ -23,10 +26,12 @@
         "foregroundImage": "./assets/images/roomiefiesLogo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.krstkaan.evarkadasimapp"
     },
     "web": {
       "favicon": "./assets/images/roomiefiesLogo.png"
-    }
+    },
+    "owner": "krstkaan"
   }
 }

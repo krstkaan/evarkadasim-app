@@ -5,7 +5,6 @@ import {
     StyleSheet,
     ActivityIndicator,
     TouchableOpacity,
-    Image,
     ScrollView,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -15,9 +14,8 @@ import { setUser, clearUser } from '../store/slices/userSlice';
 import api from '../lib/api';
 import CustomUserBottomBar from '../components/CustomUserBottomBar';
 import ListingCard from '../components/ListingCard';
-import Colors from '../constants/colors'; // ✅ Renk paleti
+import Colors from '../constants/colors';
 import { Feather } from '@expo/vector-icons';
-
 
 export default function HomeScreen() {
     const user = useSelector(state => state.user.user);
@@ -54,6 +52,19 @@ export default function HomeScreen() {
         fetchListings();
     }, []);
 
+    const getFriendshipDuration = (startDateStr) => {
+        const startDate = new Date(startDateStr);
+        const now = new Date();
+        const diffTime = Math.abs(now - startDate);
+        const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays === 0) return 'Bugün';
+        if (diffDays === 1) return 'Dünden beri';
+        if (diffDays < 30) return `${diffDays} gündür`;
+        const diffMonths = Math.floor(diffDays / 30);
+        return `${diffMonths} aydır`;
+    };
+
     if (!user) {
         return (
             <View style={styles.center}>
@@ -77,7 +88,16 @@ export default function HomeScreen() {
 
             {/* İçerik */}
             <View style={styles.welcomeCard}>
-                {loadingListings ? (
+                {user?.roommate ? (
+                    <View style={styles.friendBox}>
+                        <Text style={styles.friendText}>
+                            {user.roommate.full_name} ile arkadaşsınız 🎉
+                        </Text>
+                        <Text style={styles.friendSubText}>
+                            {getFriendshipDuration(user.roommate.started_at)} beri
+                        </Text>
+                    </View>
+                ) : loadingListings ? (
                     <View style={styles.center}>
                         <ActivityIndicator size="large" color={Colors.primary} />
                     </View>
@@ -149,5 +169,24 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 30,
         marginTop: -10,
         flex: 1,
+    },
+    friendBox: {
+        alignItems: 'center',
+        marginTop: 40,
+        padding: 20,
+        borderWidth: 1,
+        borderColor: Colors.primary,
+        borderRadius: 15,
+        backgroundColor: Colors.grayFaded,
+    },
+    friendText: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: Colors.primary,
+    },
+    friendSubText: {
+        fontSize: 14,
+        color: Colors.gray,
+        marginTop: 5,
     },
 });

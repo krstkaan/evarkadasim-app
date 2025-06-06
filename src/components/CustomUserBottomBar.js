@@ -1,17 +1,18 @@
-import { StyleSheet, View, Keyboard } from 'react-native';
+import { StyleSheet, View, Keyboard, Platform } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigationState } from '@react-navigation/native';
 import BarItem from './BarItem';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const CustomUserBottomBar = () => {
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
     const navigationState = useNavigationState((state) => state);
     const currentRouteName = navigationState?.routes[navigationState.index]?.name;
+    const insets = useSafeAreaInsets();
 
     useEffect(() => {
         const show = Keyboard.addListener('keyboardDidShow', () => setKeyboardVisible(true));
         const hide = Keyboard.addListener('keyboardDidHide', () => setKeyboardVisible(false));
-
         return () => {
             show.remove();
             hide.remove();
@@ -25,7 +26,7 @@ const CustomUserBottomBar = () => {
     }
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { paddingBottom: insets.bottom || 10 }]}>
             <BarItem
                 itemText="Ana Sayfa"
                 itemLink="HomePage"
@@ -54,7 +55,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        paddingVertical: 8,
+        paddingTop: 8,
         backgroundColor: 'white',
         borderTopWidth: 1,
         borderTopColor: 'lightgrey',
@@ -68,5 +69,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
+        zIndex: 100,
     },
 });

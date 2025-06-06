@@ -161,16 +161,27 @@ export default function CreateListingScreen({ navigation }) {
     const [loadingListing, setLoadingListing] = useState(true);
 
     useEffect(() => {
+        const checkRoommateStatus = async () => {
+            try {
+                const response = await api.get('/me');
+                if (response.data?.roommate) {
+                    Alert.alert('Uyarı', 'Aktif bir ev arkadaşlığınız var. Yeni ilan oluşturamazsınız.');
+                    navigation.replace('HomePage');
+                }
+            } catch (error) {
+                console.log("Roommate durumu alınamadı:", error);
+            }
+        };
+
         const fetchMyListing = async () => {
             try {
                 const response = await api.get('/listings/me');
-
                 if (Array.isArray(response.data) && response.data.length > 0) {
                     setMyListing(response.data[0]);
-                    navigation.replace('MyListingsScreen'); // 👈 Direkt yönlendir
+                    navigation.replace('MyListingsScreen');
                 } else if (response.data && !Array.isArray(response.data)) {
                     setMyListing(response.data);
-                    navigation.replace('MyListingsScreen'); // 👈 Direkt yönlendir
+                    navigation.replace('MyListingsScreen');
                 } else {
                     setMyListing(null);
                 }
@@ -182,6 +193,7 @@ export default function CreateListingScreen({ navigation }) {
             }
         };
 
+        checkRoommateStatus();
         fetchMyListing();
     }, []);
 
