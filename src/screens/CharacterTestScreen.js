@@ -16,6 +16,7 @@ export default function CharacterTestScreen() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
     const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
     const navigation = useNavigation();
 
     useEffect(() => {
@@ -46,6 +47,7 @@ export default function CharacterTestScreen() {
                 value: answers[index],
             }));
 
+            setSubmitting(true);
             try {
                 await api.post('/character-test-submit', { answers: payload });
                 Alert.alert('Test tamamlandı', 'Başarıyla kaydedildi.');
@@ -53,6 +55,8 @@ export default function CharacterTestScreen() {
             } catch (error) {
                 console.error('Test gönderilirken hata:', error);
                 Alert.alert('Hata', 'Test gönderilemedi. Lütfen tekrar deneyin.');
+            } finally {
+                setSubmitting(false);
             }
         }
     };
@@ -63,10 +67,15 @@ export default function CharacterTestScreen() {
         }
     };
 
-    if (loading) {
+    if (loading || submitting) {
         return (
             <View style={styles.center}>
                 <ActivityIndicator size="large" color={Colors.primary} />
+                {submitting && (
+                    <Text style={{ marginTop: 12, fontSize: 16, color: Colors.textDark }}>
+                        Testiniz inceleniyor...
+                    </Text>
+                )}
             </View>
         );
     }
