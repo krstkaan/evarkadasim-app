@@ -13,6 +13,7 @@ import FavoritesScreen from '../screens/MyFavoritesScreen';
 import MyListingsScreen from '../screens/MyListingsScreen';
 import ChatScreen from '../screens/ChatScreen';
 import ChatListScreen from '../screens/ChatListScreen';
+import MatchFeedbackScreen from '../screens/MatchFeedbackScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -79,6 +80,16 @@ export default function AppStack({ initialRoute = 'HomePage' }) {
                 component={ChatListScreen}
                 options={{
                     title: 'Mesajlar',
+                    headerShown: false, // <<< Bunu ekle
+                    headerBackTitleVisible: false,
+                    headerTintColor: Colors.primary,
+                }}
+            />
+            <Stack.Screen
+                name="MatchFeedbackScreen"
+                component={MatchFeedbackScreen}
+                options={{
+                    title: 'Arkadaşlığı Değerlendir',
                     headerShown: false, // <<< Bunu ekle
                     headerBackTitleVisible: false,
                     headerTintColor: Colors.primary,

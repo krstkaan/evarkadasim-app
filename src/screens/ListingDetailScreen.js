@@ -19,6 +19,7 @@ import Colors from "../constants/colors"
 import { Feather } from "@expo/vector-icons"
 import CustomUserBottomBar from "../components/CustomUserBottomBar"
 import { AntDesign } from "@expo/vector-icons"
+import { BASE_URL } from "../constants/config"
 
 // Define the dropdowns we need to fetch
 const DROPDOWN_ENDPOINTS = {
@@ -223,10 +224,11 @@ export default function ListingDetailScreen() {
                                 style={{ height: IMAGE_HEIGHT }}
                             >
                                 {currentListing.images.map((image, index) => (
+
                                     <Image
-                                        key={image.id || index}
-                                        source={{ uri: `http://192.168.1.111:8000/storage/${image.image_path}` }}
-                                        style={styles.sliderImage}
+                                        source={{ uri: `${BASE_URL}/storage/${item.images[0].image_path}` }}
+                                        style={styles.image}
+                                        resizeMode="cover"
                                     />
                                 ))}
                             </ScrollView>

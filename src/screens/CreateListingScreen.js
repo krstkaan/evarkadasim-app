@@ -18,6 +18,7 @@ import CustomUserBottomBar from '../components/CustomUserBottomBar';
 import { ActivityIndicator } from 'react-native';
 import ListingGate from '../components/ListingGate';
 import { FontAwesome } from '@expo/vector-icons';
+import { API_URL } from '../constants/config';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -311,7 +312,7 @@ export default function CreateListingScreen({ navigation }) {
         });
 
         try {
-            const response = await fetch('http://192.168.1.111:8000/api/listings', {
+            const response = await fetch(`${API_URL}/listings`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,

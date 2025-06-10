@@ -1,9 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Colors from '../constants/colors';
+import { BASE_URL } from '../constants/config';
 
 export default function ListingCard({ title, description, price, size, image, onPress, score }) {
-    const fullImageUrl = `http://192.168.1.111:8000/storage/${image}`;
+    const fullImageUrl = `${BASE_URL}/storage/${image}`;
 
 
     return (

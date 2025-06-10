@@ -15,6 +15,7 @@ import api from '../lib/api';
 import Colors from '../constants/colors';
 import { useNavigation } from '@react-navigation/native';
 import { FontAwesome } from '@expo/vector-icons';
+import { BASE_URL } from '../constants/config';
 
 const { width } = Dimensions.get('window');
 
@@ -102,8 +103,9 @@ export default function MyListingsScreen() {
                 activeOpacity={0.8}
             >
                 {item.images?.[0]?.image_path ? (
+
                     <Image
-                        source={{ uri: `http://192.168.1.111:8000/storage/${item.images[0].image_path}` }}
+                        source={{ uri: `${BASE_URL}/storage/${item.images[0].image_path}` }}
                         style={styles.image}
                         resizeMode="cover"
                     />
